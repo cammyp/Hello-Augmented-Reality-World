@@ -8,6 +8,7 @@ import ARKit
 class ViewController: UIViewController, ARSCNViewDelegate {
 
     @IBOutlet var sceneView: ARSCNView!
+    var sphere = SCNNode()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,6 +37,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         drawBoxAt1200High()
         drawPyramidAt600Low()
         drawPlaneAt900()
+        drawTorusAt300()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -46,11 +48,14 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     // create SCNNode, give it a color and position, add it to sceneView
     func drawSphereAtOrigin() {
-        let sphere = SCNNode(geometry: SCNSphere(radius: 0.05))
+        sphere = SCNNode(geometry: SCNSphere(radius: 0.05))
         sphere.geometry?.firstMaterial?.diffuse.contents = UIImage(named: "earth")
         sphere.geometry?.firstMaterial?.specular.contents = UIColor.yellow
         sphere.position = SCNVector3(0,0,0)
         sceneView.scene.rootNode.addChildNode(sphere)
+        let rotateAction = SCNAction.rotate(by: 360.degreesToRadians(), around: SCNVector3(0,1,0), duration: 8)
+        let rotateForeverAction = SCNAction.repeatForever(rotateAction)
+        sphere.runAction(rotateForeverAction)
     }
     
     func drawBoxAt1200High() {
@@ -72,9 +77,28 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     func drawPlaneAt900() {
         let plane = SCNNode(geometry: SCNPlane(width: 0.1, height: 0.1))
         plane.position = SCNVector3(-0.2, 0, 0)
+        plane.eulerAngles = SCNVector3(-45.degreesToRadians(), 2.degreesToRadians(), 45.degreesToRadians())
         plane.geometry?.firstMaterial?.diffuse.contents = UIImage(named: "cat")
         plane.geometry?.firstMaterial?.isDoubleSided = true
         sceneView.scene.rootNode.addChildNode(plane)
+    }
+    
+    func drawTorusAt300() {
+        let torus = SCNNode(geometry: SCNTorus(ringRadius: 0.05, pipeRadius: 0.03))
+        torus.position = SCNVector3(0.2, 0, 0)
+        torus.geometry?.firstMaterial?.diffuse.contents = UIColor.red
+        torus.geometry?.firstMaterial?.specular.contents = UIColor.white
+        torus.eulerAngles = SCNVector3(0,0,45.degreesToRadians())
+        sceneView.scene.rootNode.addChildNode(torus)
+    }
+    
+    func drawOrbitingShip() {
+        let scene = SCNScene(named: "art.scnassets/ship/scn")!
+        let ship = (scene.rootNode.childNode(withName: "ship", recursively: false))!
+        ship.position = SCNVector3(1,0,0)
+        ship.scale = SCNVector3(0.3, 0.3, 0.3)
+        ship.eulerAngles = SCNVector3(0,180.degreesToRadians(),0)
+        sphere.addChildNode(ship)
     }
 
     // MARK: - ARSCNViewDelegate
@@ -101,5 +125,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     func sessionInterruptionEnded(_ session: ARSession) {
         // Reset tracking and/or remove existing anchors if consistent tracking is required
         
+    }
+}
+
+extension Int {
+    func degreesToRadians() -> CGFloat {
+        return CGFloat(self) * CGFloat.pi / 180.0
     }
 }
