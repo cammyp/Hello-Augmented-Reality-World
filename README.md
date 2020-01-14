@@ -7,9 +7,6 @@
 ![img](https://i.imgur.com/LNYhMQum.jpg)
 
 
-# Goals
-
-⭐️ To become more familiar with ARKit and how to place objects in Augmented Reality
 
 
 # Learning Points
